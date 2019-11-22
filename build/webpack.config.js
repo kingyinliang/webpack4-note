@@ -12,7 +12,7 @@ module.exports = {
         compress: true, // 压缩
         open: true // 打开浏览器
     },
-    mode: 'production', // 模式  默认两种  production development
+    mode: 'development', // 模式  默认两种  production development
     entry: path.resolve(__dirname, '../src/index.js'), // 入口
     output: {
         filename: "main.[hash:8].js", // 打包后的文件名
@@ -55,6 +55,23 @@ module.exports = {
                     'css-loader',
                     'postcss-loader',
                     'less-loader', // less解析成css
+                ]
+            },
+            {
+                test: /\.js$/,
+                use: [
+                    {
+                        loader: "babel-loader",
+                        options: {
+                            presets: [
+                                '@babel/preset-env'
+                            ],
+                            plugins: [
+                                ["@babel/plugin-proposal-decorators", { "legacy": true }],
+                                ["@babel/plugin-proposal-class-properties", { "loose" : true }]
+                            ]
+                        }
+                    }
                 ]
             }
         ]
