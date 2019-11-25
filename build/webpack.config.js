@@ -3,6 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const UglifyjsPlugin = require('uglifyjs-webpack-plugin') // 压缩js
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin') // 压缩css
+const webpack = require('webpack')
 
 module.exports = {
     devServer: { // 开发服务器配置
@@ -16,7 +17,8 @@ module.exports = {
     entry: path.resolve(__dirname, '../src/index.js'), // 入口
     output: {
         filename: "main.[hash:8].js", // 打包后的文件名
-        path: path.resolve(__dirname, '../dist') // 路径必须是一个绝对路径
+        path: path.resolve(__dirname, '../dist'), // 路径必须是一个绝对路径
+        // publicPath: "" // cdn上
     },
     plugins: [ // 数组 所有webpack插件
         new HtmlWebpackPlugin({
@@ -28,9 +30,16 @@ module.exports = {
             hash: true
         }),
         new MiniCssExtractPlugin({
-            filename: 'main.css'
+            filename: 'css/main.css'
+        }),
+        new webpack.ProvidePlugin({
+            $: "jquery" // 在每个模块中都注入 $
         })
     ],
+    // externals: {
+    //     // 不需要打包
+    //     jquery: '$'
+    // },
     module: {
         rules: [ // 规则
             // loader特点单一 字符串用一个 数组用多个 顺序从后往前执行
@@ -68,11 +77,46 @@ module.exports = {
                             ],
                             plugins: [
                                 ["@babel/plugin-proposal-decorators", { "legacy": true }],
-                                ["@babel/plugin-proposal-class-properties", { "loose" : true }]
+                                ["@babel/plugin-proposal-class-properties", { "loose" : true }],
+                                '@babel/plugin-transform-runtime'  // 高级内置函数
                             ]
                         }
                     }
-                ]
+                ],
+                include: path.resolve(__dirname, '../src/'), // 包括
+                exclude: /node_modules/ // 排除
+            },
+            // {
+            //     test: require.resolve('jquery'),
+            //     use: 'expose-loader?$' // 暴露全局loader
+            // },
+            // {
+            //     test: /\.js$/,
+            //     use: {
+            //         loader: "eslint-loader",
+            //         options: {
+            //             enforce: "pre" // 前面 post 之后
+            //         }
+            //     },
+            //     include: path.resolve(__dirname, '../src'), // 包括
+            //     exclude: /node_modules/ // 排除
+            // },
+            // file-loader require('./logo.png) 默认生成一张图片到build目录下返回回哈希地址
+            {
+                test: /\.(png|jpg|gif)$/,
+                use: {
+                    loader: "url-loader",
+                    options: {
+                        limit: 200 * 1024, //小于多少k时用url-loader处理成base64 否则用file-loader生成真实图片
+                        outputpath: '/img/', // 输出目录
+                        // publicpath: '' // cdn
+                    }
+                }
+            },
+            {
+                // 处理html中的路径生成一张图片到build目录下返回回哈希地址
+                test: /\.html$/,
+                use: "html-withimg-loader"
             }
         ]
     },
