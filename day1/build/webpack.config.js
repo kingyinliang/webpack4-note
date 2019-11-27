@@ -4,6 +4,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const UglifyjsPlugin = require('uglifyjs-webpack-plugin') // 压缩js
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin') // 压缩css
 const webpack = require('webpack')
+const {CleanWebpackPlugin} = require('clean-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
     devServer: { // 开发服务器配置
@@ -21,6 +23,11 @@ module.exports = {
         // publicPath: "" // cdn上
     },
     plugins: [ // 数组 所有webpack插件
+        new CleanWebpackPlugin(),
+        new CopyWebpackPlugin([
+            { from: 'static', to: './' }
+        ]),
+        new webpack.BannerPlugin('make 2019 by kingyinliang'),
         new HtmlWebpackPlugin({
             template: './src/index.html',
             filename: 'index.html',
@@ -66,6 +73,9 @@ module.exports = {
                     'less-loader', // less解析成css
                 ]
             },
+            // @babel/core babel核心
+            // @babel/preset-env babel预设
+            // babel-loader babel桥梁
             {
                 test: /\.js$/,
                 use: [
@@ -120,6 +130,16 @@ module.exports = {
             }
         ]
     },
+    watch: false, // 实时编译监控打包
+    watchOptions: { // 监控选项
+        poll: 1000, // 每秒多少次
+        aggregateTimeout: 500, // 防抖作用：500毫秒内一直输入不打包
+        ignored: /node_modules/, // 不需要哪个文件
+    },
+    devtool: "source-map", // source-map生成map文件源码映射
+    // devtool: "eval-source-map", // 不会生成map文件的源码映射
+    // devtool: "cheap-source-map", // 不会产生列 是一个单独的映射文件
+    // devtool: "cheap-module-eval-source-map", // 不会产生列和生成文件，集成在打包后的文件中
     optimization: { // 优化项
         minimizer: [
             new OptimizeCssAssetsPlugin(),
