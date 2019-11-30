@@ -34,5 +34,12 @@ console.log('aaa'.includes('a'))
 // pre 前面执行的loader  normal 普通的loader  内联loader post loader 后置
 // console.log(window.$)
 
+let xhr = new XMLHttpRequest()
+xhr.open('GET', '/api/user', true)
+xhr.onload = () => {
+    console.log(xhr.response)
+}
+xhr.send()
+
 require('./index.css')
 require('./a.less')

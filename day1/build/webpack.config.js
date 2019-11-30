@@ -9,7 +9,19 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
     devServer: { // 开发服务器配置
-        port: 3000,  // 端口号
+        proxy: { // 代理
+            '/api': {
+                target: 'http://localhost:3001', // api为代理这个地址
+                pathRewrite: {
+                    '/api': ''
+                }  // 路径重写 去掉api
+            }
+        },
+        // webpack-dev-moddleware 服务端启动webpack 中间件 app.use(moddleware(webpack(config)))
+        before(app){
+        //    express服务器
+        },
+        port: 8080,  // 端口号
         progress: true,  // 进度条
         contentBase: './dist', // 静态服务文件夹
         compress: true, // 压缩
@@ -41,13 +53,26 @@ module.exports = {
         }),
         new webpack.ProvidePlugin({
             $: "jquery" // 在每个模块中都注入 $
+        }),
+        new webpack.DefinePlugin({
+            DEV: "'dev'" // 全局变量
         })
     ],
     // externals: {
     //     // 不需要打包
     //     jquery: '$'
     // },
+    resolve: { // 解析第三方common
+        modules: [path.resolve('../node_module')],
+        extensions: ['.js', 'css', '.json'], // 省略后缀
+        mainFields: ['style', 'main'], // 先找哪个
+        alias: {
+            bootstrap: 'bootstrap/dist/css/bootstrap.css'
+        }
+    },
     module: {
+        // 不去解析谁的依赖关系
+        noParse: ['jquery'],
         rules: [ // 规则
             // loader特点单一 字符串用一个 数组用多个 顺序从后往前执行
             {
