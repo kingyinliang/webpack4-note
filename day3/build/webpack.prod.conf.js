@@ -15,7 +15,7 @@ module.exports = merge(base, {
             })
         ],
         splitChunks: {  // 分割代码块
-            cacheGroup: { // 缓存组
+            cacheGroups: { // 缓存组
                 common: {  // 共公模块
                     chunks: 'initial', // 从入口开始
                     minSize: 0,  // 大小

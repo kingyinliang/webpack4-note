@@ -14,3 +14,22 @@ import React from 'react'
 import { render } from 'react-dom'
 
 render(<h1>jsx</h1>, window.root)
+
+let button = document.createElement('button')
+button.innerHTML = 'aa'
+button.addEventListener('click', () => {
+    // es6草案中的语法 jsonp实现动态加载文件
+    import('./a.js').then(data => {
+        console.log(data.default)
+    })
+})
+document.body.appendChild(button)
+
+import b from './b'
+if (module.hot) {
+    module.hot.accept('./b.js', () => {
+        let str = require('./b.js')
+        console.log(str.default)
+    })
+}
+console.log(b)
