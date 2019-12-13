@@ -1,6 +1,9 @@
  (function(modules) { // webpackBootstrap
+ 	// 定义一个缓存
  	var installedModules = {};
+ 	// 配置实现了 require方法
  	function __webpack_require__(moduleId) {
+		// 检查是否在缓存中
  		if(installedModules[moduleId]) {
  			return installedModules[moduleId].exports;
  		}
@@ -9,11 +12,12 @@
  			l: false,
  			exports: {}
  		};
+ 		// call方法
  		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
  		module.l = true;
  		return module.exports;
  	}
- 	return __webpack_require__(__webpack_require__.s = "<%-entryId%>");
+ 	return __webpack_require__(__webpack_require__.s = "<%-entryId%>"); // 入口模块
  })
  ({
  <%for(let key in modules) {%>

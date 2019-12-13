@@ -85,7 +85,7 @@ class Compiler {
     // 打包
     buildModule (modulePath, isEntry) {
         let source = this.getSource(modulePath)
-        let moduleName = './' + path.relative(this.root,modulePath)
+        let moduleName = './' + path.relative(this.root, modulePath)
         if(isEntry) {
             this.entryId = moduleName // 保存入口名字
         }
