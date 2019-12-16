@@ -5,6 +5,7 @@ const types = require('@babel/types')
 const traverse = require('@babel/traverse').default
 const generator = require('@babel/generator').default // 是Babel的代码生成器。它需要一个AST并将其转换为带有源映射的代码。
 const ejs = require('ejs')
+const {SyncHook} = require('tapable')
 
 class Compiler {
     constructor (config) {
@@ -18,6 +19,24 @@ class Compiler {
         this.root = process.cwd()
         //可能输出多个文件
         this.assets = {}
+        //模拟webpack的声明周期
+        this.hooks = {
+            entryOption: new SyncHook(),
+            compilation: new SyncHook(),
+            afterCompile: new SyncHook(),
+            afterPlugins: new SyncHook(),
+            run: new SyncHook(),
+            emit: new SyncHook(),
+            done: new SyncHook()
+        }
+        let plugins = this.config.plugins
+        //如果是数组
+        if(Array.isArray(plugins)){
+            plugins.forEach(plugin=>{
+                plugin.apply(this)
+            })
+        }
+        this.hooks.afterPlugins.call()
     }
     // 得到文件内容
     getSource (modulePath) {
@@ -122,10 +141,16 @@ class Compiler {
         })
     }
     run () {
+        this.hooks.run.call()
+        //编译 调用
+        this.hooks.compilation.call()
         // 执行 并且创建模块的依赖关系
         this.buildModule(path.resolve(this.root, this.entry), true)
         // 发射一个文件 打包后的文件
+        this.hooks.afterCompile.call()
         this.emitFile()
+        this.hooks.emit.call()
+        this.hooks.done.call()
     }
 }
 
